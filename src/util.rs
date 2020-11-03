@@ -18,6 +18,7 @@ pub fn op_to_string(op: &Instruction) -> String {
     Instruction::SF(a) => format!("SF {:X}", a),
     Instruction::SW(a, b) => format!("SW {:X}, {:X}", a, b),
     Instruction::WR => format!("WR"),
+    Instruction::PRINT => format!("PRINT"),
   }
 }
 

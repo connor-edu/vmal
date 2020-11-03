@@ -95,7 +95,7 @@ impl VM {
   }
   fn SF(&mut self, x: isize) {
     self.Z = self.registers[x as usize] == 0;
-    self.N = (self.registers[x as usize] & 0x80000000) == 0;
+    self.N = (self.registers[x as usize] & 0x80000000) > 0;
   }
   fn GO(&mut self, i: isize) {
     self.registers[0] = i;
@@ -153,6 +153,7 @@ impl VM {
       Instruction::SB(a) => self.SB(*a),
       Instruction::SF(a) => self.SF(*a),
       Instruction::WR => self.WR(),
+      Instruction::PRINT => self.print_registers(),
     }
   }
   pub fn run_code(&mut self, code: &Vec<Instruction>) {
@@ -242,7 +243,7 @@ impl VM {
     println!("Registers: ");
     self.linecount += 1;
     for (i, v) in self.registers.iter().enumerate() {
-      println!("  {:X}: {}", i, get_int(*v));
+      println!("  {:X}: {} ({:b})", i, get_int(*v), v);
       self.linecount += 1;
     }
   }

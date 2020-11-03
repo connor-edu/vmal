@@ -9,6 +9,7 @@ enum PreInstruction {
   RB(isize),
   RD,
   WR,
+  PRINT,
   SB(isize),
   SF(isize),
   GO(String),
@@ -29,6 +30,7 @@ pub enum Instruction {
   RB(isize),
   RD,
   WR,
+  PRINT,
   SB(isize),
   SF(isize),
   GO(isize),
@@ -63,10 +65,11 @@ lazy_static! {
     map.insert("RS", 13);
     map.insert("LS", 14);
     map.insert("SW", 15);
+    map.insert("PRINT", 16);
     map
   };
   pub static ref LABEL_OPS: [isize; 4] = [-1, 6, 7, 8];
-  pub static ref ZERO_ARG_OPS: [isize; 2] = [2, 3];
+  pub static ref ZERO_ARG_OPS: [isize; 3] = [2, 3, 16];
   pub static ref ONE_REG_OPS: [isize; 4] = [0, 1, 4, 5];
   pub static ref TWO_REG_OPS: [isize; 7] = [9, 10, 11, 12, 13, 14, 15];
   pub static ref IS_CNAME: Regex = Regex::new("[_a-zA-Z][_a-zA-Z0-9]*").unwrap();
@@ -208,7 +211,7 @@ impl Assembly {
         None => (code, "", ""),
       };
       let op = op.to_uppercase();
-      if op != "RD" && op != "WR" && space != " " {
+      if op != "RD" && op != "WR" && op != "PRINT" && space != " " {
         print_error(i, line, format!("Unknown character sequence '{}'", op));
       }
       if !OP_MAP.contains_key(op.as_str()) {
@@ -285,6 +288,7 @@ impl Assembly {
         let instruction = match op.as_str() {
           "RD" => PreInstruction::RD,
           "WR" => PreInstruction::WR,
+          "PRINT" => PreInstruction::PRINT,
           _ => unreachable!(),
         };
         instructions.push(instruction);
@@ -393,6 +397,7 @@ impl Assembly {
         PreInstruction::RB(a) => Instruction::RB(*a),
         PreInstruction::RD => Instruction::RD,
         PreInstruction::WR => Instruction::WR,
+        PreInstruction::PRINT => Instruction::PRINT,
         PreInstruction::SB(a) => Instruction::SB(*a),
         PreInstruction::SF(a) => Instruction::SF(*a),
         PreInstruction::GO(a) => match label_map.get(a) {
