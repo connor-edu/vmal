@@ -245,11 +245,24 @@ impl VM {
     println!("Registers: ");
     self.linecount += 1;
     let binary = *SHOULD_SHOW_BINARY.read().unwrap();
-    for (i, v) in self.registers.iter().enumerate() {
+    for i in 0..self.registers.len() {
+      let x = if binary { 2 } else { 4 };
+      let loc = if binary {
+        if i % 2 != 0 {
+          i / 2 + 8
+        } else {
+          i / 2
+        }
+      } else {
+        let column = i / x;
+        let row = i % x;
+        row * x + column
+      };
+      let v = self.registers[loc];
       if binary {
         print!(
           "{:X}: {}  ",
-          i,
+          loc,
           format!("{:0>32b}", v)
             .chars()
             .enumerate()
@@ -265,9 +278,9 @@ impl VM {
             .collect::<String>()
         );
       } else {
-        print!("{:X}: {}\t\t", i, get_int(*v));
+        print!("{:X}: {}\t\t", loc, get_int(v));
       }
-      if (i + 1) % if binary { 2 } else { 4 } == 0 {
+      if (i + 1) % x == 0 {
         println!();
         self.linecount += 1;
       }
