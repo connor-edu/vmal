@@ -1,6 +1,6 @@
 [package]
 name = "vmal"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Connor Love <connor@dotconnor.com>"]
 edition = "2018"
 
