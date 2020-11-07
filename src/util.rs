@@ -1,4 +1,12 @@
+use lazy_static::lazy_static;
+use std::sync::RwLock;
+
 use crate::assembler::Instruction;
+
+lazy_static! {
+  pub static ref SHOULD_USE_UNSIGNED_INT: RwLock<bool> = RwLock::new(false);
+  pub static ref SHOULD_SHOW_BINARY: RwLock<bool> = RwLock::new(false);
+}
 
 pub fn op_to_string(op: &Instruction) -> String {
   match op {

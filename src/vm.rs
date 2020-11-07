@@ -1,7 +1,10 @@
 use std::collections::{HashMap, HashSet};
 use std::io::{stdin, stdout, Write};
 
-use crate::{assembler::Instruction, util::op_to_string};
+use crate::{
+  assembler::Instruction,
+  util::{op_to_string, SHOULD_SHOW_BINARY, SHOULD_USE_UNSIGNED_INT},
+};
 
 const INT_MAX: isize = 0xffffffff;
 #[derive(Debug)]
@@ -16,7 +19,7 @@ pub struct VM {
 }
 
 fn get_int(reg_val: isize) -> isize {
-  if reg_val & (!(INT_MAX >> 1) & INT_MAX) == 0 {
+  if reg_val & (!(INT_MAX >> 1) & INT_MAX) == 0 || *SHOULD_USE_UNSIGNED_INT.read().unwrap() {
     reg_val
   } else {
     -((-reg_val) & INT_MAX)
@@ -234,7 +237,6 @@ impl VM {
       self.run_op(&op);
       self.registers[0] += 1;
     }
-    println!();
     return true;
   }
   pub fn print_registers(&mut self) {
@@ -242,9 +244,33 @@ impl VM {
     self.linecount += 1;
     println!("Registers: ");
     self.linecount += 1;
+    let binary = *SHOULD_SHOW_BINARY.read().unwrap();
     for (i, v) in self.registers.iter().enumerate() {
-      println!("  {:X}: {} ({:b})", i, get_int(*v), v);
-      self.linecount += 1;
+      if binary {
+        print!(
+          "{:X}: {}  ",
+          i,
+          format!("{:0>32b}", v)
+            .chars()
+            .enumerate()
+            .flat_map(|(i, c)| {
+              if i != 0 && i % 4 == 0 {
+                Some(' ')
+              } else {
+                None
+              }
+              .into_iter()
+              .chain(std::iter::once(c))
+            })
+            .collect::<String>()
+        );
+      } else {
+        print!("{:X}: {}\t\t", i, get_int(*v));
+      }
+      if (i + 1) % if binary { 2 } else { 4 } == 0 {
+        println!();
+        self.linecount += 1;
+      }
     }
   }
   pub fn print_memory(&mut self) {
