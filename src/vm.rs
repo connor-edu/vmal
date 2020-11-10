@@ -7,6 +7,10 @@ use crate::{
 };
 
 const INT_MAX: isize = 0xffffffff;
+
+fn count_space(num: isize) -> usize {
+  return format!("{}", num).len();
+}
 #[derive(Debug)]
 pub struct VM {
   pub registers: [isize; 16],
@@ -245,6 +249,12 @@ impl VM {
     println!("Registers: ");
     self.linecount += 1;
     let binary = *SHOULD_SHOW_BINARY.read().unwrap();
+    let padding = self
+      .registers
+      .iter()
+      .map(|x| count_space(get_int(*x)))
+      .max()
+      .unwrap();
     for i in 0..self.registers.len() {
       let x = if binary { 2 } else { 4 };
       let loc = if binary {
@@ -278,7 +288,7 @@ impl VM {
             .collect::<String>()
         );
       } else {
-        print!("{:X}: {}\t\t", loc, get_int(v));
+        print!("{:X}: {:width$}\t", loc, get_int(v), width = padding);
       }
       if (i + 1) % x == 0 {
         println!();
