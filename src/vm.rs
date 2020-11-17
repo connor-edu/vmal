@@ -83,7 +83,7 @@ impl VM {
     self.MAR = self.registers[x as usize];
   }
   fn RB(&mut self, x: isize) {
-    self.registers[x as usize] = self.MAR;
+    self.registers[x as usize] = self.MBR;
   }
   fn RD(&mut self) {
     self.MBR = 0;
